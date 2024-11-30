@@ -1,7 +1,7 @@
 import streamlit as st
 import openai
 import os
-pip install openai==0.28
+
 
 
 # Set up Streamlit page configuration
