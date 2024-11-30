@@ -1,6 +1,7 @@
 import streamlit as st
 import openai
 import os
+pip install openai==0.28
 
 # Set up Streamlit page configuration
 st.set_page_config(page_title="AI Code Reviewer", page_icon="🤖", layout="wide")
