@@ -1,13 +1,24 @@
 import streamlit as st
 import openai
 import os
-pip install openai==0.28
+
 
 # Set up Streamlit page configuration
 st.set_page_config(page_title="AI Code Reviewer", page_icon="🤖", layout="wide")
 
 # Load OpenAI API Key from secrets
 openai.api_key = os.getenv("OPENAI_API_KEY")
+
+
+
+# Using the new method to chat with the model
+response = openai.Completion.create(
+    model="gpt-3.5-turbo",  # You can use any available model here
+    messages=[{"role": "user", "content": "Hello!"}]
+)
+
+print(response['choices'][0]['message']['content'])
+
 
 # Application Title
 st.title("🤖 AI Code Reviewer")
