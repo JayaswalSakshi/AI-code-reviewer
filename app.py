@@ -1,7 +1,7 @@
 import streamlit as st
 import openai
 import os
-
+import google.generativeai as genai
 
 
 # Set up Streamlit page configuration
