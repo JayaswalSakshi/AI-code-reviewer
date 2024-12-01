@@ -1,47 +1,50 @@
-import streamlit as st
-import openai
+
 import os
+import streamlit as st
 import google.generativeai as genai
 
 
+# Configure the API key
+f = open("keys/geminikey.txt")
+key = f.read()
 
+genai.configure(api_key=key)
 
-from google.cloud import generativelanguage_v1beta2
-from google.oauth2 import service_account
-import json
+# Initialize the Generative AI model
+model = genai.GenerativeModel("gemini-1.5-flash")
 
-# Page title
-st.title("🤖 AI Text Generator using Google Gemini")
+# System prompt for the AI
+sys_prompt = """
+You are an AI Code Reviewer, an expert in Python code. Review and analyze submitted code to provide:
+1. ## 🪲Bug Report: Identify potential bugs, syntax errors, and logical flaws, with explanations.
+2. ## ⚙️Fixed Code: Suggest corrections or optimizations with explanations.
+3. ## 📄Instruction: Offer helpful,understandable and concise feedback for developers at all skill levels.
+Keep the tone professional, clear, and focused on improving coding practices.
+"""
 
-# Load credentials securely from Streamlit secrets
-try:
-    credentials_info = json.loads(st.secrets["google"]["credentials"])
-    credentials = service_account.Credentials.from_service_account_info(credentials_info)
-except Exception as e:
-    st.error("Failed to load Google API credentials. Check your Streamlit secrets.")
-    st.stop()
+# Function to get AI response
+def get_response(code_input):
+    response = model.generate_content([sys_prompt, code_input])
+    return response.text
 
-# Initialize Google Gemini client
-client = generativelanguage_v1beta2.TextServiceClient(credentials=credentials)
+# Streamlit app configuration
+st.set_page_config(page_title="AI Code Reviewer", page_icon="🤖", layout="wide")
 
-# Input text from the user
-prompt = st.text_input("Enter a prompt for the AI model:", "Explain AI in simple terms")
+# App header
+st.markdown("<h1 style='text-align: left;'>🤖 AI Code Reviewer</h1>", unsafe_allow_html=True)
+st.markdown("---")
 
-# Button to trigger text generation
-if st.button("Generate Text"):
-    try:
-        # Make a request to the Gemini API
-        request = generativelanguage_v1beta2.GenerateTextRequest(
-            model="models/text-bison-001",  # Replace with Google Gemini model name
-            prompt=prompt,
-            temperature=0.7,
-            max_output_tokens=100
-        )
-        response = client.generate_text(request=request)
+# Intro section
+st.write("### Submit your Python code to identify issues, apply fixes, and uncover valuable suggestions!")
+st.markdown("Enter your Python code below, and let the AI provide a detailed analysis and optimization!")
 
-        # Display the AI-generated response
-        output = response.candidates[0].output
-        st.success("Generated Text:")
-        st.write(output)
-    except Exception as e:
-        st.error(f"An error occurred: {e}")
+# Code input section
+st.write("#### 👨‍💻Input:")
+code_input = st.text_area("Enter your Python code here:", placeholder="Enter your code")
+
+# Review button and output
+
+if st.button("Review Code") and code_input.strip():
+    st.header("🔍Code Review ")
+    response = get_response(code_input)
+    st.write(response)
