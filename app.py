@@ -4,12 +4,14 @@ import os
 import google.generativeai as genai
 
 
-# Set up Streamlit page configuration
-st.set_page_config(page_title="AI Code Reviewer", page_icon="🤖", layout="wide")
 
-# Load OpenAI API Key from secrets
-openai.api_key = os.getenv("OPENAI_API_KEY")
+f = open("keys/geminikey.txt")
+key = f.read()
 
+genai.configure(api_key=key)
+
+# Initialize the Generative AI model
+model = genai.GenerativeModel("gemini-1.5-flash")
 
 
 # Using the new method to chat with the model
