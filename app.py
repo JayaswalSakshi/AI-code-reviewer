@@ -2,7 +2,7 @@ import streamlit as st
 import openai  # Ensure the OpenAI package is installed and the API key is set
 
 # Configure your OpenAI API key
-openai.api_key = "your-openai-api-key"
+openai.api_key = "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"
 
 # Function to interact with OpenAI API
 def review_code(code: str):
