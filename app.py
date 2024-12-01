@@ -1,46 +1,51 @@
+
+
+import os
 import streamlit as st
-import openai  # Ensure the OpenAI package is installed and the API key is set
+import google.generativeai as genai
 
-# Configure your OpenAI API key
-openai.api_key = "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"
 
-# Function to interact with OpenAI API
-def review_code(code: str):
-    try:
-        response = openai.ChatCompletion.create(
-            model="gpt-4",
-            messages=[
-                {"role": "system", "content": "You are an expert Python code reviewer."},
-                {"role": "user", "content": f"Review this Python code:\n{code}"}
-            ]
-        )
-        feedback = response['choices'][0]['message']['content']
-        # Extract fixed code (if any) from feedback
-        fixed_code = extract_fixed_code(feedback)
-        return feedback, fixed_code
-    except Exception as e:
-        return f"Error: {str(e)}", ""
+# Configure the API key
+f = open("keys/geminikey.txt")
+key = f.read()
 
-# Helper function to extract fixed code from feedback
-def extract_fixed_code(feedback: str):
-    if "```python" in feedback:
-        return feedback.split("```python")[1].split("```")[0]
-    return "No fixed code provided."
+genai.configure(api_key=key)
 
-# Streamlit UI
-st.title("GenAI Code Reviewer")
-st.subheader("Submit your Python code for automated review and fixes.")
+# Initialize the Generative AI model
+model = genai.GenerativeModel("gemini-1.5-flash")
 
-# Input box for user code
-user_code = st.text_area("Paste your Python code here", height=300)
+# System prompt for the AI
+sys_prompt = """
+You are an AI Code Reviewer, an expert in Python code. Review and analyze submitted code to provide:
+1. ## 🪲Bug Report: Identify potential bugs, syntax errors, and logical flaws, with explanations.
+2. ## ⚙️Fixed Code: Suggest corrections or optimizations with explanations.
+3. ## 📄Instruction: Offer helpful,understandable and concise feedback for developers at all skill levels.
+Keep the tone professional, clear, and focused on improving coding practices.
+"""
 
-if st.button("Submit"):
-    if user_code.strip():
-        with st.spinner("Reviewing your code..."):
-            feedback, fixed_code = review_code(user_code)
-        st.subheader("Feedback")
-        st.write(feedback)
-        st.subheader("Fixed Code")
-        st.code(fixed_code, language="python")
-    else:
-        st.warning("Please input Python code before submitting.")
+# Function to get AI response
+def get_response(code_input):
+    response = model.generate_content([sys_prompt, code_input])
+    return response.text
+
+# Streamlit app configuration
+st.set_page_config(page_title="AI Code Reviewer", page_icon="🤖", layout="wide")
+
+# App header
+st.markdown("<h1 style='text-align: left;'>🤖 AI Code Reviewer</h1>", unsafe_allow_html=True)
+st.markdown("---")
+
+# Intro section
+st.write("### Submit your Python code to identify issues, apply fixes, and uncover valuable suggestions!")
+st.markdown("Enter your Python code below, and let the AI provide a detailed analysis and optimization!")
+
+# Code input section
+st.write("#### 👨‍💻Input:")
+code_input = st.text_area("Enter your Python code here:", placeholder="Enter your code")
+
+# Review button and output
+
+if st.button("Review Code") and code_input.strip():
+    st.header("🔍Code Review ")
+    response = get_response(code_input)
+    st.write(response)
