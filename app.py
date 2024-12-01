@@ -1,6 +1,12 @@
 import streamlit as st
 from utils.api_client import review_code
 import openai
+import sys
+import os
+
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+from utils.api_client import review_code
+
 
 st.title("GenAI Code Reviewer")
 st.subheader("Submit your Python code for automated review and fixes.")
